@@ -57,8 +57,8 @@ class Hand:
 
 class Chips:
     
-    def __init__(self):
-        self.total = 200
+    def __init__(self, total=200):
+        self.total = total
         self.bet = 0
         
     def win_bet(self):
@@ -66,6 +66,18 @@ class Chips:
     
     def lose_bet(self):
         self.total -= self.bet
+    
+def save_chips_total(chips):
+    with open("chips_total.txt", "w") as file:
+        file.write(str(chips.total))
+
+def load_chips_total():
+    try:
+        with open("chips_total.txt", "r") as file:
+            balance = int(file.read())
+            return balance
+    except (FileNotFoundError, ValueError):
+        return 200
 
 def take_bet(chips):
     
@@ -76,7 +88,7 @@ def take_bet(chips):
             print('Sorry, a bet must be a whole number!')
         else:
             if chips.bet > chips.total:
-                print("Sorry, your bet can't exceed ",chips.total)
+                print("Sorry, your bet can't exceed",chips.total)
             else:
                 break
 
@@ -86,12 +98,14 @@ def hit(deck,hand):
     hand.adjust_for_ace()
 
 def hit_or_stand(deck,hand):
+    
     global playing
     
     while True:
-        x = input("Would you like to Hit or Stand? Enter 'h' or 's' ")
+        x = input("Would you like to Hit or Stand? Input: (H/S)")
         
         if x[0].lower() == 'h':
+            print("Player hits.")
             hit(deck,hand)
 
         elif x[0].lower() == 's':
@@ -99,45 +113,62 @@ def hit_or_stand(deck,hand):
             playing = False
 
         else:
-            print("The only options or hit (h) or stand (s).")
+            print("The only options are hit (h) or stand (s).")
             continue
         break
 
 def show_some(player,dealer):
+    
     print("\nDealer's Hand:")
     print(" <card hidden>")
     print('',dealer.cards[1])  
     print("\nPlayer's Hand:", *player.cards, sep='\n ')
     
 def show_all(player,dealer):
+    
     print("\nDealer's Hand:", *dealer.cards, sep='\n ')
     print("Dealer's Hand =",dealer.value)
     print("\nPlayer's Hand:", *player.cards, sep='\n ')
     print("Player's Hand =",player.value)
 
 def player_busts(player,dealer,chips):
+    
     print("Player busts!")
     chips.lose_bet()
+    save_chips_total(chips)
 
 def dealer_wins(player,dealer,chips):
+    
     print("Dealer wins!")
     chips.lose_bet()
+    save_chips_total(chips)
 
 def player_wins(player,dealer,chips):
+    
     print("Player wins!")
     chips.win_bet()
+    save_chips_total(chips)
 
 def dealer_busts(player,dealer,chips):
+    
     print("Dealer busts!")
     chips.win_bet()
+    save_chips_total(chips)
         
-def push(player,dealer):
+def push(player,dealer,chips):
     print("Dealer and Player tie! It's a push.")
+    save_chips_total(chips)
 
 while True:
-    # Print an opening statement
-    print('Welcome to BlackJack! Get as close to 21 as you can without going over!\n\
-    Dealer hits until she reaches 17. Aces count as 1 or 11. You have 100 chips to bet.')
+    # Welcome
+    player_chips = Chips(load_chips_total())
+    print('\n\
+            Welcome to BlackJack!\n\
+            Get as close to 21 as you can without going over!\n\
+            Dealer hits until it reaches 17.\n\
+            Aces count as 1 or 11.\n\
+            You have :::',player_chips.total, '::: chips available.\n\
+                ')
     
     # Create & shuffle the deck, deal two cards to each player
     deck = Deck()
@@ -152,7 +183,7 @@ while True:
     dealer_hand.add_card(deck.deal())
             
     # Set up the Player's chips
-    player_chips = Chips()  # remember the default value is 100    
+    player_chips = Chips(load_chips_total())
     
     # Prompt the Player for their bet
     take_bet(player_chips)
@@ -194,17 +225,20 @@ while True:
             player_wins(player_hand,dealer_hand,player_chips)
 
         else:
-            push(player_hand,dealer_hand)        
+            push(player_hand,dealer_hand,player_chips)        
     
     # Inform Player of their chips total 
     print("\nPlayer's winnings stand at",player_chips.total)
     
     # Ask to play again
-    new_game = input("Would you like to play another hand? Enter 'y' or 'n' ")
+    new_game = input("Would you like to play another hand? Input (Y/N)")
     
     if new_game[0].lower()=='y':
         playing=True
         continue
     else:
-        print("Thanks for playing!")
+        print("Thanks for playing! All earnings/losses have been saved.")
         break
+
+    #double-bet
+    #split 

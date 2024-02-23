@@ -3,9 +3,9 @@ import random
 #pdb.set_trace()
 
 def display_board(board):
-    board0=board[0:3]
-    board1=board[3:6]
-    board2=board[6:9]
+    board0=board[1:4]
+    board1=board[4:7]
+    board2=board[7:]
 
     print(board0)
     print(board1)
@@ -25,24 +25,24 @@ def place_marker(board, X_or_O, position):
     board[position] = X_or_O
 
 def win_check(board,mark):
-    return ((board[0] == mark and board[1] == mark and board[2] == mark) or
-    (board[3] == mark and board[4] == mark and board[5] == mark) or
-    (board[6] == mark and board[7] == mark and board[8] == mark) or
-    (board[0] == mark and board[3] == mark and board[6] == mark) or
+    return ((board[1] == mark and board[2] == mark and board[3] == mark) or
+    (board[4] == mark and board[5] == mark and board[6] == mark) or
+    (board[7] == mark and board[8] == mark and board[9] == mark) or
     (board[1] == mark and board[4] == mark and board[7] == mark) or
     (board[2] == mark and board[5] == mark and board[8] == mark) or
-    (board[0] == mark and board[4] == mark and board[8] == mark) or
-    (board[2] == mark and board[4] == mark and board[6] == mark))
+    (board[3] == mark and board[6] == mark and board[9] == mark) or
+    (board[1] == mark and board[5] == mark and board[9] == mark) or
+    (board[3] == mark and board[5] == mark and board[7] == mark))
 
 def choose_first():
     random_player = random.choice(["Player 1", "Player 2"])
     return random_player
 
 def space_check(board, position):
-    return type(board[position]) == type(8)
+    return type(board[position]) == type(9)
 
 def full_board_check(board):
-    for space in range(0,9):
+    for space in range(1,9):
         if space_check(board, space):
             return False
     return True
@@ -52,13 +52,13 @@ def player_choice(board):
     
     while True:
         try:
-            position = int(input('Choose your next position (0-8): '))
-            if position in [0,1,2,3,4,5,6,7,8] and space_check(board, position):
+            position = int(input('Choose your next position (1-9): '))
+            if position in [1,2,3,4,5,6,7,8,9] and space_check(board, position):
                 break
             else:
-                print("Invalid input, this position is already taken or input value exceeds 8!")
+                print("Invalid input, this position is already taken or input value exceeds 1-9!")
         except ValueError:
-            print("Invalid input, please choose a number between 0-8: ")
+            print("Invalid input, please choose a number between 1-9: ")
     return position
 
 def replay():
@@ -67,7 +67,7 @@ def replay():
 print('Welcome to Tic Tac Toe!')
 
 while True:
-    board = [0,1,2,3,4,5,6,7,8]
+    board = [0,1,2,3,4,5,6,7,8,9]
     (player1_marker, player2_marker) = player_input()
     turn = choose_first()
     print(turn + ' will go first.')
@@ -128,4 +128,4 @@ while True:
         break
 
 #1-9
-    #input fix
+#input fix

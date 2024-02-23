@@ -88,7 +88,7 @@ def take_bet(chips):
             print('Sorry, a bet must be a whole number!')
         else:
             if chips.bet > chips.total:
-                print("Sorry, your bet can't exceed",chips.total)
+                print("Sorry, your bet can't exceed",chips.total," chips")
             else:
                 break
 
@@ -104,18 +104,42 @@ def hit_or_stand(deck,hand):
     while True:
         x = input("Would you like to Hit or Stand? Input: (H/S)")
         
-        if x[0].lower() == 'h':
-            print("Player hits.")
-            hit(deck,hand)
+        if x != "":
+            if x[0].lower() == 'h':
+                print("Player hits.")
+                hit(deck,hand)
 
-        elif x[0].lower() == 's':
-            print("Player stands. Dealer is playing.")
-            playing = False
+            elif x[0].lower() == 's':
+                print("Player stands. Dealer is playing.")
+                playing = False
 
-        else:
-            print("The only options are hit (h) or stand (s).")
-            continue
-        break
+            else:
+                print("The only options are hit (h) or stand (s).")
+                continue
+            break
+
+def double_bet(deck,hand,chips):
+    
+    if chips.total >= chips.bet * 2:
+        while True:
+            x = input("Would you like to double your bet? Input: (Y/N): ")
+
+            if x != "":
+                if x[0].lower() == "y":
+                    
+                    chips.bet = chips.bet * 2
+                    print("Player doubled their bet!")
+                    hit(deck,hand)
+                    
+                    break
+                elif x[0].lower() == "n":
+                    break
+                else:
+                    print("Please enter Y or N: ")
+                    continue
+    else:
+        print("You don't have enough chips to double your bet!")
+                
 
 def show_some(player,dealer):
     
@@ -155,11 +179,11 @@ def dealer_busts(player,dealer,chips):
     chips.win_bet()
     save_chips_total(chips)
         
-def push(player,dealer):
-    
+def push(player,dealer,chips):
     print("Dealer and Player tie! It's a push.")
+    save_chips_total(chips)
 
-while True:
+while playing==True:
     # Welcome
     player_chips = Chips(load_chips_total())
     print('\n\
@@ -167,7 +191,8 @@ while True:
             Get as close to 21 as you can without going over!\n\
             Dealer hits until it reaches 17.\n\
             Aces count as 1 or 11.\n\
-            You have ', player_chips.total, 'chips available:\n\
+            It is possible to double your bet after first two cards are dealt.\n\
+            You have :::',player_chips.total, '::: chips available.\n\
                 ')
     
     # Create & shuffle the deck, deal two cards to each player
@@ -193,23 +218,28 @@ while True:
     
     while playing:  # recall this variable from our hit_or_stand function
         
-        # Prompt for Player to Hit or Stand
-        hit_or_stand(deck,player_hand) 
-        
-        # Show cards (but keep one dealer card hidden)
+        # Ask for double bet or not
+        double_bet(deck, player_hand, player_chips)
         show_some(player_hand,dealer_hand)  
+        
+        # Prompt for Player to Hit or Stand
+        hit_or_stand(deck,player_hand)
+        show_some(player_hand,dealer_hand)
+
+        
         
         # If player's hand exceeds 21, run player_busts() and break out of loop
         if player_hand.value > 21:
+            show_all(player_hand,dealer_hand)
             player_busts(player_hand,dealer_hand,player_chips)
-            break        
+            break
 
 
     # If Player hasn't busted, play Dealer's hand until Dealer reaches 17 
     if player_hand.value <= 21:
         
         while dealer_hand.value < 17:
-            hit(deck,dealer_hand)    
+            hit(deck,dealer_hand)
     
         # Show all cards
         show_all(player_hand,dealer_hand)
@@ -225,20 +255,59 @@ while True:
             player_wins(player_hand,dealer_hand,player_chips)
 
         else:
-            push(player_hand,dealer_hand)        
+            push(player_hand,dealer_hand,player_chips)        
     
     # Inform Player of their chips total 
     print("\nPlayer's winnings stand at",player_chips.total)
     
     # Ask to play again
-    new_game = input("Would you like to play another hand? Input (Y/N)")
-    
-    if new_game[0].lower()=='y':
-        playing=True
-        continue
-    else:
-        print("Thanks for playing! All earnings/losses have been saved.")
-        break
+    while True:
+        new_game = input("Would you like to play another hand? Input (Y/N)")
+        if new_game != "":
+            if new_game[0].lower()=='y':
+                playing=True
+                break
+            elif new_game[0].lower()=="n":
+                print("Thanks for playing! All earnings/losses have been saved.")
+                playing=False
+                break
+            else:
+                print("Not a valid answer.")
+                continue
 
     #double-bet
     #split 
+            
+#from collections import Counter
+''' def split(deck, hand):
+        if card.count() >= 2 and ...
+            x = input("Would you like to split)
+
+            if x != "":
+                if x[0].lower() == "y":
+                    
+                    new_hand = Hand()
+                    new_hand.add_card(player_hand.pop())
+                    new_hand.add_card(deck.deal())
+                    player_hand.add_card(deck.deal())
+
+                    print("Player split")
+                    return new_hand, player_hand
+                
+                else:
+                print("Player did not split")
+                return player_hand
+
+
+in de while loop voor eerste hit or stand en dan na elke hit om te checken
+
+
+
+wat is blackjack - 
+comments -> code -> result
+
+
+
+
+
+'''
